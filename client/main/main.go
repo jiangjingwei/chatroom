@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go_code/chatroom/client/process"
 	"os"
 )
 
@@ -27,7 +28,15 @@ func main() {
 
 		switch key {
 		case 1:
-			loop = false
+			fmt.Println("请输入用户名：")
+			fmt.Scanln(&username)
+			fmt.Println("请输入密码：")
+			fmt.Scanln(&password)
+
+			up := &process.UserProcess{}
+			up.Login(username, password)
+
+			// loop = false
 		case 2:
 			fmt.Println("正在注册...")
 			loop = false
@@ -37,23 +46,6 @@ func main() {
 		default:
 			fmt.Println("输入的参数不正确，请重新输入...")
 		}
-
-		if key == 1 {
-			fmt.Println("请输入用户名：")
-			fmt.Scanln(&username)
-			fmt.Println("请输入密码：")
-			fmt.Scanln(&password)
-			err := login(username, password)
-			if err != nil {
-				fmt.Println("用户名密码错误，请重新输入")
-			} else {
-				// loginMenu()
-				fmt.Println("登录成功")
-
-			}
-
-		}
-
 	}
 
 }

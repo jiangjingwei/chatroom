@@ -1,27 +1,17 @@
-package main
+package process
 
 import (
 	"encoding/json"
 	"fmt"
 	"go_code/chatroom/common/message"
+	"go_code/chatroom/server/utils"
 	"net"
 )
 
-// func loginMenu() {
-// 	var (
-// 		key string
-// 	)
-// 	fmt.Println("1、显示在线用户列表")
-// 	fmt.Println("2、发送信息")
-// 	fmt.Println("3、信息列表")
-// 	fmt.Println("4、退出系统")
-// 	fmt.Println("\t\t 请输入：	")
+type UserProcess struct {
+}
 
-// 	fmt.Scanln(&key)
-
-// }
-
-func login(username string, password string) (err error) {
+func (this *UserProcess) Login(username string, password string) (err error) {
 	conn, err := net.Dial("tcp", "127.0.0.1:8888")
 	if err != nil {
 		fmt.Println("net.Dial err = ", err)
@@ -51,13 +41,17 @@ func login(username string, password string) (err error) {
 		return
 	}
 
-	err = writePkg(conn, data)
+	tf := utils.Transfer{
+		Conn: conn,
+	}
+
+	err = tf.WritePkg(data)
 	if err != nil {
 		fmt.Println("writePkg err = ", err)
 		return
 	}
 
-	mes, err = readPkg(conn)
+	mes, err = tf.ReadPkg()
 	if err != nil {
 		fmt.Println("readPkg err = ", err)
 		return
@@ -67,6 +61,13 @@ func login(username string, password string) (err error) {
 	err = json.Unmarshal([]byte(mes.Data), &loginResMes)
 	if loginResMes.Code == 200 {
 		fmt.Println("登录成功")
+
+		// 登录成功后，界面显示服务器发送来的消息
+		go serverProcessMes(conn)
+		// 显示登录后的菜单
+		for {
+			ShowMenu()
+		}
 	} else if loginResMes.Code == 500 {
 		fmt.Println(loginResMes.Error)
 	}
